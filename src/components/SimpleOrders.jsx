@@ -11,6 +11,27 @@ const SimpleOrders = ({ marca }) => {
   const error = useSelector((state) => state.orders.error);
   const [dateRange, setDateRange] = useState('last2days');
   const [isFetching, setIsFetching] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(900);
+  const minutes = Math.floor(timeLeft / 60);
+ const seconds = timeLeft % 60;
+   useEffect(() => {
+     const countdown = setInterval(() => {
+       setTimeLeft(prevTime => prevTime - 1);
+     }, 1000);
+   
+     return () => clearInterval(countdown);
+   }, []);
+  useEffect(() => {
+     fetchData();
+     const intervalId = setInterval(() => {
+       // Al actualizar, forzamos una nueva solicitud limpiando el dateRange
+       localStorage.removeItem('dateRange');
+       fetchData();
+       setTimeLeft(900);
+     }, 900000);
+ 
+     return () => clearInterval(intervalId);
+   }, [dispatch, dateRange]);
 
   const fetchData = async () => {
     if (!isFetching) {
@@ -141,6 +162,9 @@ return (
             <MenuItem value="all">Todas las órdenes</MenuItem>
           </Select>
         </FormControl>
+        <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
+                      Las órdenes se actualizarán en {minutes}:{seconds < 10 ? `0${seconds}` : seconds} minutos
+                            </Typography>
         <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
           Total de Órdenes: {ordersData.totalOrders}
         </Typography>

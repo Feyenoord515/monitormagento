@@ -6,6 +6,17 @@ export const fetchOrders = (dateRange) => async (dispatch) => {
  
 console.log(dateRange)
   try {
+
+    const storedData = localStorage.getItem('data');
+    const storedDateRange = localStorage.getItem('dateRange');
+
+    // Si tenemos datos y el rango coincide, usamos los datos almacenados
+    if (storedData && storedDateRange === JSON.stringify(dateRange)) {
+      console.log('Usando datos del localStorage');
+      dispatch(fetchOrdersSuccess(JSON.parse(storedData)));
+      return;
+    }
+    
     const requestOptions = {
       method: "POST",
       headers: {
@@ -22,6 +33,7 @@ console.log(dateRange)
 console.log('tamaño de elemento',resultSize)
     if (resultSize <= 5 * 1024 * 1024) { // 5 MiB en bytes
       localStorage.setItem('data', resultString);
+      localStorage.setItem('dateRange', JSON.stringify(dateRange));
     } else {
       console.warn('La respuesta supera el límite de 5 MiB y no se almacenará en localStorage.');
     }
