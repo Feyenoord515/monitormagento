@@ -208,7 +208,7 @@ console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`)
           <FormControl variant="outlined" className={classes.filterControl}>
             <InputLabel>Rango de Fechas</InputLabel>
             <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
-              <MenuItem value="last15days">Últimos 7 días</MenuItem>
+              <MenuItem value="last7days">Últimos 7 días</MenuItem>
               <MenuItem value="last2days">Últimos 2 días</MenuItem>
               <MenuItem value="all">Todas las órdenes</MenuItem>
             </Select>
