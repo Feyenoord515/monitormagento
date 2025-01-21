@@ -4,16 +4,24 @@ import { Tabs, Tab, Box } from '@mui/material';
 import SimpleOrders from './components/SimpleOrders';
 import OrdersTable from './components/OrdersTable';
 import FilteredOrders from './components/FilteredOrders';
+import { useAuth } from './AuthContext';
+import Login from './components/Login';
+import LogoutButton from './components/LogoutButton';
 
 function App() {
+  const { user } = useAuth();
+
   const [selectedTab, setSelectedTab] = useState(0);
 
   const handleChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
-
+  if (!user) {
+    return <Login />;
+  }
   return (
     <Box>
+      <LogoutButton />
       <Tabs value={selectedTab} onChange={handleChange} aria-label="simple tabs example">
         {/* <Tab label="All Orders" /> */}
         <Tab label="Orders Table" />

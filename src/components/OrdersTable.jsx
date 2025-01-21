@@ -175,11 +175,28 @@ const getAndreaniHistory = (statusHistories) => {
 
   return andreaniStatuses;
 };
+
+function getLocalStorageSize() {
+  let total = 0;
+  for (let key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      total += key.length + localStorage.getItem(key).length;
+    }
+  }
+  return total;
+}
+
+console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`);
+
   return (
     <Box>
-      {loading && <CircularProgress />}
-      {error && <Typography color="error">{error}</Typography>}
-      {!loading && !error && orders && (
+      {!orders&&loading ? (
+        <CircularProgress />
+      ) : error ? (
+        <Typography variant="h6" color="error">
+                Error al cargar las órdenes
+              </Typography>
+      ) : (
         <>
           <FormControl variant="outlined" className={classes.filterControl}>
             <InputLabel>Filtro</InputLabel>

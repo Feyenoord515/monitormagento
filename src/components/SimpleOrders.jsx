@@ -9,7 +9,7 @@ const SimpleOrders = ({ marca }) => {
   const ordersData = useSelector((state) => state.orders.orders);
   const loading = useSelector((state) => state.orders.loading);
   const error = useSelector((state) => state.orders.error);
-  const [dateRange, setDateRange] = useState('last7days');
+  const [dateRange, setDateRange] = useState('last2days');
   const [isFetching, setIsFetching] = useState(false);
 
   const fetchData = async () => {
@@ -68,42 +68,43 @@ const SimpleOrders = ({ marca }) => {
   
   const groupOrdersByBrandAndDate = (orders) => {
     const groupedOrders = {};
-
+  
     orders.forEach((order) => {
-      const brand = order.store_name.split(' ')[0].toLowerCase();
-      const date = new Date(order.created_at).toISOString().split('T')[0]; // Obtener solo la fecha en formato YYYY-MM-DD
-
-      if (!groupedOrders[brand]) {
-        groupedOrders[brand] = {};
-      }
-
-      if (!groupedOrders[brand][date]) {
-        groupedOrders[brand][date] = {
-          totalOrders: 0,
-          totalItemsSold: 0,
-          totalRevenue: 0,
-          totalShippingCost: 0,
-          skus: {},
-        };
-      }
-
-      groupedOrders[brand][date].totalOrders += 1;
-      groupedOrders[brand][date].totalItemsSold += order.items.filter(el => el.base_price_incl_tax !== 'N/A').length;
-      groupedOrders[brand][date].totalRevenue += parseFloat(order.base_subtotal);
-      if (order.base_shipping_amount !== 'N/A') {
-        groupedOrders[brand][date].totalShippingCost += parseFloat(order.base_shipping_amount);
-      }
-      order.items.forEach(item => {
-        if(item.base_price_incl_tax !== 'N/A'){
-        if (groupedOrders[brand][date].skus[item.sku]) {
-          groupedOrders[brand][date].skus[item.sku] += 1;
-        } else {
-          groupedOrders[brand][date].skus[item.sku] = 1;
+      if (order.status === 'processing' || order.status === 'complete') { 
+        const brand = order.store_name.split(' ')[0].toLowerCase();
+        const date = new Date(order.created_at).toISOString().split('T')[0]; 
+        if (!groupedOrders[brand]) {
+          groupedOrders[brand] = {};
         }
+  
+        if (!groupedOrders[brand][date]) {
+          groupedOrders[brand][date] = {
+            totalOrders: 0,
+            totalItemsSold: 0,
+            totalRevenue: 0,
+            totalShippingCost: 0,
+            skus: {},
+          };
+        }
+  
+        groupedOrders[brand][date].totalOrders += 1;
+        groupedOrders[brand][date].totalItemsSold += order.items.filter(el => el.base_price_incl_tax !== 'N/A').length;
+        groupedOrders[brand][date].totalRevenue += parseFloat(order.base_subtotal);
+        if (order.base_shipping_amount !== 'N/A') {
+          groupedOrders[brand][date].totalShippingCost += parseFloat(order.base_shipping_amount);
+        }
+        order.items.forEach(item => {
+          if(item.base_price_incl_tax !== 'N/A'){
+            if (groupedOrders[brand][date].skus[item.sku]) {
+              groupedOrders[brand][date].skus[item.sku] += 1;
+            } else {
+              groupedOrders[brand][date].skus[item.sku] = 1;
+            }
+          }
+        });
       }
-      });
     });
-
+  
     return groupedOrders;
   };
 
@@ -122,7 +123,7 @@ const chartData = Object.keys(groupedOrders).map(brand => {
 console.log(chartData)
 return (
   <Box>
-    {loading ? (
+    {!ordersData&&loading ? (
       <Backdrop open={true}>
         <CircularProgress color="inherit" />
       </Backdrop>
@@ -135,7 +136,7 @@ return (
         <FormControl variant="outlined" style={{ marginBottom: '20px' }}>
           <InputLabel>Rango de Fechas</InputLabel>
           <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
-            <MenuItem value="last15days">Últimos 7 días</MenuItem>
+            <MenuItem value="last7days">Últimos 7 días</MenuItem>
             <MenuItem value="last2days">Últimos 2 días</MenuItem>
             <MenuItem value="all">Todas las órdenes</MenuItem>
           </Select>
@@ -143,8 +144,17 @@ return (
         <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
           Total de Órdenes: {ordersData.totalOrders}
         </Typography>
+        <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
+           Órdenes Canceladas: {ordersData.canceledOrders}
+        </Typography>
         <Typography variant="h6" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
-          Órdenes en estado "processing": {ordersData.processingOrders}
+          Órdenes en estado "processing" y "complete": {ordersData.twoStates}
+        </Typography>
+        <Typography variant="h6" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
+          Órdenes en SAP: {ordersData.processingOrdersInSap}
+        </Typography>
+        <Typography variant="h6" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
+          Faltan cargar a SAP: {ordersData.processingOrdersNotInSap}
         </Typography>
         <Grid container spacing={2}>
             {Object.keys(groupedOrders).map((brand, brandIndex) => (

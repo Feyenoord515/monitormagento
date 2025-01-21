@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  deliveryNotes: [],
+  deliveryNotes:JSON.parse(localStorage.getItem('delivery')) || [],
   loading: false,
   error: null,
 };
