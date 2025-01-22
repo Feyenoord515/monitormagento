@@ -127,20 +127,20 @@ const seconds = timeLeft % 60;
 
   const getFilteredOrders = () => {
     if (!orders || orders.length === 0) return [];
-
+  
     let filteredOrders = [...orders]; // Crear una copia del array
-
+  
     if (filter === 'noDoc') {
-      console.log('en filter === noDoc', filteredOrders);
       filteredOrders = filteredOrders.filter(order => 
         (!order.DocEntries || order.DocEntries.length === 0) && 
         (!order.DocNums || order.DocNums.length === 0)
       );
+    } else if (filter === 'processing') {
+      filteredOrders = filteredOrders.filter(order => order.status === 'processing');
     }
-
+  
     return filteredOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   };
-
   const filteredOrders = getFilteredOrders();
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -220,9 +220,10 @@ console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`)
              
             <InputLabel>Filtro</InputLabel>
             <Select value={filter} onChange={handleFilterChange} label="Filtro">
-              <MenuItem value="all">Todos</MenuItem>
-              <MenuItem value="noDoc">Sin DocEntry y DocNum</MenuItem>
-            </Select>
+  <MenuItem value="all">Todos</MenuItem>
+  <MenuItem value="noDoc">Sin DocEntry y DocNum</MenuItem>
+  <MenuItem value="processing">En Proceso</MenuItem> {/* Nueva opción */}
+</Select>
           </FormControl>
           <FormControl variant="outlined" className={classes.filterControl}>
             <InputLabel>Rango de Fechas</InputLabel>
