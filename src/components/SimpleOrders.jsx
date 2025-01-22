@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../redux/ordersThunks";
-import { Backdrop, CircularProgress, Box, Typography, Grid, Card, CardContent, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {Button, Backdrop, CircularProgress, Box, Typography, Grid, Card, CardContent, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import OrdersChart from './OrdersChart';
 
 const SimpleOrders = ({ marca }) => {
@@ -11,7 +11,7 @@ const SimpleOrders = ({ marca }) => {
   const error = useSelector((state) => state.orders.error);
   const [dateRange, setDateRange] = useState('last2days');
   const [isFetching, setIsFetching] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(900);
+  const [timeLeft, setTimeLeft] = useState(300);
   const minutes = Math.floor(timeLeft / 60);
  const seconds = timeLeft % 60;
    useEffect(() => {
@@ -27,8 +27,8 @@ const SimpleOrders = ({ marca }) => {
        // Al actualizar, forzamos una nueva solicitud limpiando el dateRange
        localStorage.removeItem('dateRange');
        fetchData();
-       setTimeLeft(900);
-     }, 900000);
+       setTimeLeft(300);
+     }, 300000);
  
      return () => clearInterval(intervalId);
    }, [dispatch, dateRange]);
@@ -41,14 +41,18 @@ const SimpleOrders = ({ marca }) => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [dispatch, dateRange]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [dispatch, dateRange]);
 
   const handleDateRangeChange = (event) => {
     setDateRange(event.target.value);
   };
 
+  const handleManualFetch = () => {
+    fetchData();
+    setTimeLeft(300); // Reiniciar 5 minutos
+  };
   const getDateRange = (range) => {
     const today = new Date();
     let startDate, endDate;
@@ -165,6 +169,10 @@ return (
         <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
                       Las órdenes se actualizarán en {minutes}:{seconds < 10 ? `0${seconds}` : seconds} minutos
                             </Typography>
+                             <Button variant="contained" color="primary" style={{
+ marginBottom: '20px' }} onClick={handleManualFetch} disabled={isFetching}>
+                                    {isFetching ? 'Actualizando...' : 'Actualizar Ahora'}
+                                  </Button>
         <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
           Total de Órdenes: {ordersData.totalOrders}
         </Typography>

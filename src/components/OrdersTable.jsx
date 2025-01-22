@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders } from '../redux/ordersThunks';
 import { fetchDeliveryNotes } from '../redux/deliveryNotesThunks';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Button,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { CheckCircle, ErrorOutline } from '@mui/icons-material'; 
 
@@ -39,7 +39,7 @@ const OrdersTable = () => {
   const [filter, setFilter] = useState('all');
   const [dateRange, setDateRange] = useState('last2days');
   const [isFetching, setIsFetching] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(900);
+  const [timeLeft, setTimeLeft] = useState(300);
 
   const minutes = Math.floor(timeLeft / 60);
 const seconds = timeLeft % 60;
@@ -64,8 +64,8 @@ const seconds = timeLeft % 60;
       // Al actualizar, forzamos una nueva solicitud limpiando el dateRange
       localStorage.removeItem('dateRange');
       fetchData();
-      setTimeLeft(900);
-    }, 900000);
+      setTimeLeft(300); // Reiniciar el temporizador a 5 minutos
+    }, 300000); // 5 minutos
 
     return () => clearInterval(intervalId);
   }, [dispatch, dateRange]);
@@ -86,6 +86,12 @@ const seconds = timeLeft % 60;
   const handleDateRangeChange = (event) => {
     setDateRange(event.target.value);
   };
+
+  const handleManualFetch = () => {
+    fetchData();
+    setTimeLeft(300); // Reiniciar 5 minutos
+  };
+
 
   const getDateRange = (range) => {
     const today = new Date();
@@ -236,6 +242,9 @@ console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`)
           <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
               Las órdenes se actualizarán en {minutes}:{seconds < 10 ? `0${seconds}` : seconds} minutos
                     </Typography>
+                    <Button variant="contained" color="primary" onClick={handleManualFetch} disabled={isFetching}>
+        {isFetching ? 'Actualizando...' : 'Actualizar Ahora'}
+      </Button>
           <TableContainer component={Paper}>
             <Table className={classes.table}>
               <TableHead className={classes.tableHeader}>
