@@ -252,6 +252,7 @@ console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`)
                   <TableCell className={classes.tableCellHeader}>Creacion</TableCell>
                   <TableCell className={classes.tableCellHeader}>ID</TableCell>
                   <TableCell className={classes.tableCellHeader}>Status</TableCell>
+                  <TableCell className={classes.tableCellHeader}>State</TableCell>
                   <TableCell className={classes.tableCellHeader}>Store</TableCell>
                   <TableCell className={classes.tableCellHeader}>Actualizada El</TableCell>
                   <TableCell className={classes.tableCellHeader}>Detalle Pago</TableCell>
@@ -276,6 +277,7 @@ console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`)
                     <TableCell className={classes.tableCell}>{formatDate(order.created_at)}</TableCell>
                     <TableCell className={classes.tableCell}>{order.increment_id}</TableCell>
                     <TableCell className={classes.tableCell}>{order.status}</TableCell>
+                    <TableCell className={classes.tableCell}>{order.state}</TableCell>
                     <TableCell className={classes.tableCell}>{extractTienda(order.store_name)}</TableCell>
                     <TableCell className={classes.tableCell}>{formatDate(order.updated_at)}</TableCell>
                     <TableCell className={classes.tableCell}>{extractBrContent(statuses.comment)[0]}</TableCell>
