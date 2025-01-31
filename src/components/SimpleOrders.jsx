@@ -9,7 +9,7 @@ const SimpleOrders = ({ marca }) => {
   const ordersData = useSelector((state) => state.orders.orders);
   const loading = useSelector((state) => state.orders.loading);
   const error = useSelector((state) => state.orders.error);
-  const [dateRange, setDateRange] = useState('last2days');
+  const [dateRange, setDateRange] = useState('last7days');
   const [isFetching, setIsFetching] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
   const minutes = Math.floor(timeLeft / 60);
@@ -60,7 +60,7 @@ const SimpleOrders = ({ marca }) => {
      switch (range) {
       case 'last2days':
         startDate = new Date(today);
-        startDate.setUTCDate(today.getUTCDate() - 2);
+        startDate.setUTCDate(today.getUTCDate() - 5);
         startDate.setUTCHours(0, 0, 0, 0);
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
@@ -73,7 +73,7 @@ const SimpleOrders = ({ marca }) => {
       case 'last7days':
       default:
         startDate = new Date(today);
-        startDate.setUTCDate(today.getUTCDate() - 7);
+        startDate.setUTCDate(today.getUTCDate() - 15);
         startDate.setUTCHours(0, 0, 0, 0);
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
@@ -161,8 +161,8 @@ return (
         <FormControl variant="outlined" style={{ marginBottom: '20px' }}>
           <InputLabel>Rango de Fechas</InputLabel>
           <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
-            <MenuItem value="last7days">Últimos 7 días</MenuItem>
-            <MenuItem value="last2days">Últimos 2 días</MenuItem>
+            <MenuItem value="last7days">Últimos 15 días</MenuItem>
+            <MenuItem value="last2days">Últimos 5 días</MenuItem>
             <MenuItem value="all">Todas las órdenes</MenuItem>
           </Select>
         </FormControl>

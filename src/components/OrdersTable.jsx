@@ -4,7 +4,9 @@ import { fetchOrders } from '../redux/ordersThunks';
 import { fetchDeliveryNotes } from '../redux/deliveryNotesThunks';
 import { Button,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import { styled } from '@mui/system';
 import { CheckCircle, ErrorOutline } from '@mui/icons-material'; 
+import * as XLSX from 'xlsx';
 
 const useStyles = makeStyles({
   table: {
@@ -28,7 +30,39 @@ const useStyles = makeStyles({
   filterControl: {
     marginBottom: '20px',
   },
+  buttonContainer: {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    marginBottom: '20px',
+  },
+  downloadButton: {
+    alignSelf: 'flex-end',
+    marginBottom: '20px',
+    marginTop: '10px',
+  },
 });
+const StyledBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: theme.spacing(2),
+  gap: theme.spacing(2),
+}));
+
+const FilterGroup = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(2),
+}));
+
+const UpdateGroup = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+}));
+
+
 const OrdersTable = () => {
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -37,7 +71,7 @@ const OrdersTable = () => {
   const loading = useSelector((state) => state.orders.loading);
   const error = useSelector((state) => state.orders.error);
   const [filter, setFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('last2days');
+  const [dateRange, setDateRange] = useState('last7days');
   const [isFetching, setIsFetching] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
 
@@ -100,7 +134,7 @@ const seconds = timeLeft % 60;
      switch (range) {
       case 'last2days':
         startDate = new Date(today);
-        startDate.setUTCDate(today.getUTCDate() - 2);
+        startDate.setUTCDate(today.getUTCDate() - 5);
         startDate.setUTCHours(0, 0, 0, 0);
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
@@ -113,7 +147,7 @@ const seconds = timeLeft % 60;
       case 'last7days':
       default:
         startDate = new Date(today);
-        startDate.setUTCDate(today.getUTCDate() - 7);
+        startDate.setUTCDate(today.getUTCDate() - 15);
         startDate.setUTCHours(0, 0, 0, 0);
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
@@ -125,7 +159,7 @@ const seconds = timeLeft % 60;
   
     const fechaInicio = startDateUTC.toISOString().split('T')[0];
     const fechaFin = endDateUTC.toISOString().split('T')[0];
-    
+    console.log(`${fechaInicio} al ${fechaFin}`)
     return {
       fechas: `${fechaInicio} al ${fechaFin}`
     };
@@ -211,6 +245,42 @@ function getLocalStorageSize() {
 }
 
 console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`);
+const handleDownloadReport = () => {
+  const data = filteredOrders.map(order => ({
+    Creacion: formatDate(order.created_at),
+    ID: order.increment_id,
+    Status: order.status,
+    Store: extractTienda(order.store_name),
+    Actualizada_El: formatDate(order.updated_at),
+    Detalle_Pago: extractBrContent(getRelevantStatus(order.status_histories).comment)[0],
+    Pago_Creado_El: getRelevantStatus(order.status_histories) ? formatDate(getRelevantStatus(order.status_histories).created_at) : null,
+    Pago_Estado: getRelevantStatus(order.status_histories).status,
+    DocEntry: order.DocEntries ? order.DocEntries.join(', ') : null,
+    DocNum: order.DocNums ? order.DocNums.join(', ') : null,
+    Andreani: order.shipping_description.includes("Andreani - Retiro en sucursal")
+      ? order.shipping_description
+      : (
+        getAndreaniHistory(order.status_histories).length > 0
+          ? getAndreaniHistory(order.status_histories).map((state, index) => (
+            `${state.state} - ${formatDate(state.date)}`
+          )).join(', ')
+          : "Sin actualizaciones de envío"
+      ),
+    Delivery_Note: deliveryNotes.some(note => note.U_WESAP_BaseSysUID === order.increment_id) ? 'Sí' : 'No'
+  }));
+
+  // Crear un nuevo libro de Excel
+  const workbook = XLSX.utils.book_new();
+
+  // Convertir los datos a una hoja de cálculo
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Agregar la hoja de cálculo al libro
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Reporte de Ventas');
+
+  // Generar el archivo Excel y descargarlo
+  XLSX.writeFile(workbook, 'reporte_ventas.xlsx');
+};
 
   return (
     <Box>
@@ -222,29 +292,37 @@ console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`)
               </Typography>
       ) : (
         <>
-          <FormControl variant="outlined" className={classes.filterControl}>
-             
-            <InputLabel>Filtro</InputLabel>
-            <Select value={filter} onChange={handleFilterChange} label="Filtro">
-  <MenuItem value="all">Todos</MenuItem>
-  <MenuItem value="noDoc">Sin DocEntry y DocNum</MenuItem>
-  <MenuItem value="processing">En Proceso</MenuItem> {/* Nueva opción */}
-</Select>
-          </FormControl>
-          <FormControl variant="outlined" className={classes.filterControl}>
-            <InputLabel>Rango de Fechas</InputLabel>
-            <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
-              <MenuItem value="last7days">Últimos 7 días</MenuItem>
-              <MenuItem value="last2days">Últimos 2 días</MenuItem>
-              <MenuItem value="all">Todas las órdenes</MenuItem>
-            </Select>
-          </FormControl>
-          <Typography variant="h5" className="font-bold" style={{ color: '#007bff', marginBottom: '20px' }}>
-              Las órdenes se actualizarán en {minutes}:{seconds < 10 ? `0${seconds}` : seconds} minutos
-                    </Typography>
-                    <Button variant="contained" color="primary" onClick={handleManualFetch} disabled={isFetching}>
-        {isFetching ? 'Actualizando...' : 'Actualizar Ahora'}
-      </Button>
+       <StyledBox>
+            <FilterGroup>
+              <FormControl variant="outlined" sx={{ marginBottom: 2 }}>
+                <InputLabel>Filtro</InputLabel>
+                <Select value={filter} onChange={handleFilterChange} label="Filtro">
+                  <MenuItem value="all">Todos</MenuItem>
+                  <MenuItem value="noDoc">Sin DocEntry y DocNum</MenuItem>
+                  <MenuItem value="processing">En Proceso</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl variant="outlined" sx={{ marginBottom: 2 }}>
+                <InputLabel>Rango de Fechas</InputLabel>
+                <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
+                  <MenuItem value="last7days">Últimos 15 días</MenuItem>
+                  <MenuItem value="last2days">Últimos 5 días</MenuItem>
+                  <MenuItem value="all">Todas las órdenes</MenuItem>
+                </Select>
+              </FormControl>
+            </FilterGroup>
+            <UpdateGroup>
+              <Typography variant="h5" className="font-bold" sx={{ color: '#007bff', marginBottom: 2 }}>
+                Las órdenes se actualizarán en {minutes}:{seconds < 10 ? `0${seconds}` : seconds} minutos
+              </Typography>
+              <Button variant="contained" color="primary" onClick={handleManualFetch} disabled={isFetching}>
+                {isFetching ? 'Actualizando...' : 'Actualizar Ahora'}
+              </Button>
+            </UpdateGroup>
+            <Button variant="contained" color="primary" sx={{ alignSelf: 'flex-end' }} onClick={handleDownloadReport}>
+              Descargar Reporte de Ventas
+            </Button>
+          </StyledBox>
           <TableContainer component={Paper}>
             <Table className={classes.table}>
               <TableHead className={classes.tableHeader}>
