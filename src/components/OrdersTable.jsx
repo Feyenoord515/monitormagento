@@ -131,10 +131,52 @@ const seconds = timeLeft % 60;
     const today = new Date();
     let startDate, endDate;
   
-     switch (range) {
+    switch (range) {
       case 'last2days':
         startDate = new Date(today);
+        startDate.setUTCDate(today.getUTCDate() - 2);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+      case 'last5days':
+        startDate = new Date(today);
         startDate.setUTCDate(today.getUTCDate() - 5);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+      case 'last7days':
+        startDate = new Date(today);
+        startDate.setUTCDate(today.getUTCDate() - 7);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+      case 'last10days':
+        startDate = new Date(today);
+        startDate.setUTCDate(today.getUTCDate() - 10);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+      case 'last15days':
+        startDate = new Date(today);
+        startDate.setUTCDate(today.getUTCDate() - 15);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+      case 'last20days':
+        startDate = new Date(today);
+        startDate.setUTCDate(today.getUTCDate() - 20);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+      case 'lastMonth':
+        startDate = new Date(today);
+        startDate.setUTCMonth(today.getUTCMonth() - 1);
         startDate.setUTCHours(0, 0, 0, 0);
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
@@ -144,14 +186,8 @@ const seconds = timeLeft % 60;
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
         break;
-      case 'last7days':
       default:
-        startDate = new Date(today);
-        startDate.setUTCDate(today.getUTCDate() - 15);
-        startDate.setUTCHours(0, 0, 0, 0);
-        endDate = new Date(today);
-        endDate.setUTCHours(23, 59, 59, 999);
-        break;
+        console.log('Rango no reconocido');
     }
   
     const startDateUTC = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
@@ -305,10 +341,15 @@ const handleDownloadReport = () => {
               <FormControl variant="outlined" sx={{ marginBottom: 2 }}>
                 <InputLabel>Rango de Fechas</InputLabel>
                 <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
-                  <MenuItem value="last7days">Últimos 15 días</MenuItem>
-                  <MenuItem value="last2days">Últimos 5 días</MenuItem>
-                  <MenuItem value="all">Todas las órdenes</MenuItem>
-                </Select>
+  <MenuItem value="last2days">Últimos 2 días</MenuItem>
+  <MenuItem value="last5days">Últimos 5 días</MenuItem>
+  <MenuItem value="last7days">Últimos 7 días</MenuItem>
+  <MenuItem value="last10days">Últimos 10 días</MenuItem>
+  <MenuItem value="last15days">Últimos 15 días</MenuItem>
+  <MenuItem value="last20days">Últimos 20 días</MenuItem>
+  <MenuItem value="lastMonth">Último mes</MenuItem>
+  <MenuItem value="all">Todas las órdenes</MenuItem>
+</Select>
               </FormControl>
             </FilterGroup>
             <UpdateGroup>
