@@ -4,7 +4,7 @@ export const fetchOrders = (dateRange) => async (dispatch) => {
   dispatch(fetchOrdersRequest());
 
  
-console.log(dateRange)
+
   try {
 
     const storedData = localStorage.getItem('data');
