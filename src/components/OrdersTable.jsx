@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders } from '../redux/ordersThunks';
 import { fetchDeliveryNotes } from '../redux/deliveryNotesThunks';
-import { Button,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Button,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Typography, FormControl, InputLabel, Select, MenuItem, Pagination } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/system';
 import { CheckCircle, ErrorOutline } from '@mui/icons-material'; 
@@ -74,6 +74,8 @@ const OrdersTable = () => {
   const [dateRange, setDateRange] = useState('last7days');
   const [isFetching, setIsFetching] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 150;
 
   const minutes = Math.floor(timeLeft / 60);
 const seconds = timeLeft % 60;
@@ -126,6 +128,9 @@ const seconds = timeLeft % 60;
     setTimeLeft(300); // Reiniciar 5 minutos
   };
 
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
 
   const getDateRange = (range) => {
     const today = new Date();
@@ -218,6 +223,8 @@ const seconds = timeLeft % 60;
     return filteredOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   };
   const filteredOrders = getFilteredOrders();
+  const paginatedOrders = filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+
   const formatDate = (dateString) => {
     const options = { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
     const dateGMT0 = new Date(dateString); // Fecha en GMT 0
@@ -386,7 +393,7 @@ const handleDownloadReport = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-              {filteredOrders.map((order) => {
+              {paginatedOrders.map((order) => {   //CAMBIAMOS filteredOrders por paginatedOrders
                 const statuses = getRelevantStatus(order.status_histories);
                 const statusAndreani = getRelevantStatusAndreani(order.status_histories)
                 const andreaniHistory = getAndreaniHistory(order.status_histories);
@@ -435,6 +442,13 @@ const handleDownloadReport = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <Pagination
+          count={Math.ceil(filteredOrders.length / ordersPerPage)}
+          page={currentPage}
+          onChange={handlePageChange}
+          color="primary"
+          sx={{ marginTop: 2, display: 'flex', justifyContent: 'center' }}
+        />
         </>
       )}
     </Box>
