@@ -301,6 +301,9 @@ const handleDownloadReport = () => {
     DocEntry: order.DocEntries ? order.DocEntries.join(', ') : null,
     DocNum: order.DocNums ? order.DocNums.join(', ') : null,
     DocTotal: order.DocTotal ? order.DocTotal.join(', ') : null,
+    DocEntryPago:order.paymentDocEntry ? order.paymentDocEntry.join(', ') : null,
+DocNumPago:order.paymentDocNum ? order.paymentDocNum.join(', ') : null,
+DocTotalPago:order.paymentCashSum ? order.paymentCashSum.join(', ') : null,
     Andreani: order.shipping_description.includes("Andreani - Retiro en sucursal")
       ? order.shipping_description
       : (
@@ -388,6 +391,9 @@ const handleDownloadReport = () => {
                   <TableCell className={classes.tableCellHeader}>DocEntry</TableCell>
                   <TableCell className={classes.tableCellHeader}>DocNum</TableCell>
                   <TableCell className={classes.tableCellHeader}>DocTotal</TableCell>
+                  <TableCell className={classes.tableCellHeader}>DocEntryPago</TableCell>
+                  <TableCell className={classes.tableCellHeader}>DocNumPago</TableCell>
+                  <TableCell className={classes.tableCellHeader}>DocTotalPago</TableCell>
                   <TableCell className={classes.tableCellHeader}>Andreani</TableCell>
                   <TableCell className={classes.tableCellHeader}>Delivery Note</TableCell>
                 </TableRow>
@@ -414,6 +420,9 @@ const handleDownloadReport = () => {
                     <TableCell className={classes.tableCell}>{order.DocEntries ? order.DocEntries.join(', ') : null}</TableCell>
                     <TableCell className={classes.tableCell}>{order.DocNums ? order.DocNums.join(', ') : null}</TableCell>
                     <TableCell className={classes.tableCell}>{order.DocTotal ? order.DocTotal.join(', ') : null}</TableCell>
+                    <TableCell className={classes.tableCell}>{order.paymentDocEntry ? order.paymentDocEntry.join(', ') : null}</TableCell>
+                    <TableCell className={classes.tableCell}>{order.paymentDocNum ? order.paymentDocNum.join(', ') : null}</TableCell>
+                    <TableCell className={classes.tableCell}>{order.paymentCashSum ? order.paymentCashSum.join(', ') : null}</TableCell>
                     <TableCell className={classes.tableCell}>
   {order.shipping_description.includes("Andreani - Retiro en sucursal") 
     ? order.shipping_description 
