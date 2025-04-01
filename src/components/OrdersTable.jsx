@@ -394,6 +394,7 @@ DocTotalPago:order.paymentCashSum ? order.paymentCashSum.join(', ') : null,
                   <TableCell className={classes.tableCellHeader}>DocEntryPago</TableCell>
                   <TableCell className={classes.tableCellHeader}>DocNumPago</TableCell>
                   <TableCell className={classes.tableCellHeader}>DocTotalPago</TableCell>
+                  <TableCell className={classes.tableCellHeader}>FacturanteID</TableCell>
                   <TableCell className={classes.tableCellHeader}>Andreani</TableCell>
                   <TableCell className={classes.tableCellHeader}>Delivery Note</TableCell>
                 </TableRow>
@@ -423,6 +424,7 @@ DocTotalPago:order.paymentCashSum ? order.paymentCashSum.join(', ') : null,
                     <TableCell className={classes.tableCell}>{order.paymentDocEntry ? order.paymentDocEntry.join(', ') : null}</TableCell>
                     <TableCell className={classes.tableCell}>{order.paymentDocNum ? order.paymentDocNum.join(', ') : null}</TableCell>
                     <TableCell className={classes.tableCell}>{order.paymentCashSum ? order.paymentCashSum.join(', ') : null}</TableCell>
+                    <TableCell className={classes.tableCell}>{order.factInternalId ? order.factInternalId : null}</TableCell>
                     <TableCell className={classes.tableCell}>
   {order.shipping_description.includes("Andreani - Retiro en sucursal") 
     ? order.shipping_description 
