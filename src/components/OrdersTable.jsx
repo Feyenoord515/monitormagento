@@ -71,7 +71,7 @@ const OrdersTable = () => {
   const loading = useSelector((state) => state.orders.loading);
   const error = useSelector((state) => state.orders.error);
   const [filter, setFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('last7days');
+  const [dateRange, setDateRange] = useState('last5days');
   const [isFetching, setIsFetching] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
   const [currentPage, setCurrentPage] = useState(1);
