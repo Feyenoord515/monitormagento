@@ -71,7 +71,7 @@ const OrdersTable = () => {
   const loading = useSelector((state) => state.orders.loading);
   const error = useSelector((state) => state.orders.error);
   const [filter, setFilter] = useState('all');
-  const [dateRange, setDateRange] = useState('last5days');
+  const [dateRange, setDateRange] = useState('last7days');
   const [isFetching, setIsFetching] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,7 +110,9 @@ const seconds = timeLeft % 60;
 
   useEffect(() => {
     if (orders && orders.length > 0) {
+      // console.log('ORDENES',orders)
       const incrementIds = orders.map((order) => order.increment_id);
+      // console.log(incrementIds)
       dispatch(fetchDeliveryNotes(incrementIds)); // Llamada única con el array
     }
   }, [dispatch,orders]);
@@ -140,6 +142,13 @@ const seconds = timeLeft % 60;
       case 'last2days':
         startDate = new Date(today);
         startDate.setUTCDate(today.getUTCDate() - 2);
+        startDate.setUTCHours(0, 0, 0, 0);
+        endDate = new Date(today);
+        endDate.setUTCHours(23, 59, 59, 999);
+        break;
+         case 'last4days':
+        startDate = new Date(today);
+        startDate.setUTCDate(today.getUTCDate() - 4);
         startDate.setUTCHours(0, 0, 0, 0);
         endDate = new Date(today);
         endDate.setUTCHours(23, 59, 59, 999);
@@ -200,7 +209,7 @@ const seconds = timeLeft % 60;
   
     const fechaInicio = startDateUTC.toISOString().split('T')[0];
     const fechaFin = endDateUTC.toISOString().split('T')[0];
-    console.log(`${fechaInicio} al ${fechaFin}`)
+    // console.log(`${fechaInicio} al ${fechaFin}`)
     return {
       fechas: `${fechaInicio} al ${fechaFin}`
     };
@@ -277,17 +286,17 @@ const getAndreaniHistory = (statusHistories) => {
   return andreaniStatuses;
 };
 
-function getLocalStorageSize() {
-  let total = 0;
-  for (let key in localStorage) {
-    if (localStorage.hasOwnProperty(key)) {
-      total += key.length + localStorage.getItem(key).length;
-    }
-  }
-  return total;
-}
+// function getLocalStorageSize() {
+//   let total = 0;
+//   for (let key in localStorage) {
+//     if (localStorage.hasOwnProperty(key)) {
+//       total += key.length + localStorage.getItem(key).length;
+//     }
+//   }
+//   return total;
+// }
 
-console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`);
+// console.log(`Espacio utilizado en localStorage: ${getLocalStorageSize()} bytes`);
 const handleDownloadReport = () => {
   const data = filteredOrders.map(order => ({
     Creacion: formatDate(order.created_at),
@@ -353,6 +362,7 @@ DocTotalPago:order.paymentCashSum ? order.paymentCashSum.join(', ') : null,
                 <InputLabel>Rango de Fechas</InputLabel>
                 <Select value={dateRange} onChange={handleDateRangeChange} label="Rango de Fechas">
   <MenuItem value="last2days">Últimos 2 días</MenuItem>
+   <MenuItem value="last4days">Últimos 4 días</MenuItem>
   <MenuItem value="last5days">Últimos 5 días</MenuItem>
   <MenuItem value="last7days">Últimos 7 días</MenuItem>
   <MenuItem value="last10days">Últimos 10 días</MenuItem>
